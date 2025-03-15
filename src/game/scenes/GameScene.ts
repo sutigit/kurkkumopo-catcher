@@ -1,4 +1,4 @@
-// import { EventBus } from "../EventBus";
+import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
 // import Goal from '../objects/Goal';
 
@@ -89,7 +89,7 @@ export class GameScene extends Scene {
             }
         });
 
-        // EventBus.emit("game-ready", this);
+        EventBus.emit("game-ready", this);
     }
 
     update() {
