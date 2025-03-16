@@ -36,13 +36,11 @@ Make sure you have the following software installed on your machine:
     npm run dev
     ```
 
-    This will start a local development server and open the game in your default web browser.
+    This will start a local development server
 
 ## Contributing
 
-We welcome contributions to the project! To contribute, follow these steps:
-
-1. **Fork the repository:**
+1. **Fork the repository:**d
 
     Click the "Fork" button at the top right corner of the repository page.
 
@@ -54,7 +52,7 @@ We welcome contributions to the project! To contribute, follow these steps:
 
 3. **Make your changes:**
 
-    Make your changes to the codebase. Write nice code.
+    Make your changes to the codebase.
 
 4. **Commit your changes:**
 
@@ -70,7 +68,7 @@ We welcome contributions to the project! To contribute, follow these steps:
 
 6. **Create a Pull Request:**
 
-    Go to the repository page on GitHub and click the "New Pull Request" button. Provide a clear description of your changes and submit the pull request.
+    Go to the repository page on GitHub and click the "New Pull Request" button. Provide some description of your changes and submit the pull request.
 
 ## License
 
@@ -83,6 +81,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 -   [npm](https://www.npmjs.com/) - Node package manager.
 
 ---
-
-Happy coding!
 
