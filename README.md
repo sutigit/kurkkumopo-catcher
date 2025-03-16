@@ -80,6 +80,7 @@ Make sure you have the following software installed on your machine:
 -   Game joining system with a username (Maybe GitHub account linking)
 -   Server Deployment
 -   The coolest kurkkumopo target
+-   Weekly changing theme system
 -   Minimap
 -   Backend for score keeping
 -   Live Leaderboard
@@ -87,6 +88,7 @@ Make sure you have the following software installed on your machine:
 -   Obstacle building API for easy obstacle contributing
 -   AI-generated kurkkumopo emblem system
 -   Slack leaderboard notification integration
+-   Replay-video capture system for weakly best play
 -   Good ideas from you
 
 ## License
