@@ -3,8 +3,6 @@ import { Scene } from "phaser";
 import Goal from "../objects/Goal";
 import Puck from "../objects/Puck";
 
-// Game objects
-
 // const PRIMARY = 0x2D336B;
 // const SECONDARY = 0x7886C7;
 // const TERTIARY = 0xA9B5DF;

@@ -184,6 +184,7 @@ export default class Puck {
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
 
+            // Check if the puck has stopped moving
             const { x, y } = this.puck.getVelocity();
             if (Math.abs(x) < 0.01 && Math.abs(y) < 0.01) {
                 this.isPuckInMotion = false;
@@ -209,7 +210,7 @@ export default class Puck {
                     if (this.isCenterContact()) {
                         const { x, y } = this.handle.getVelocity();
                         this.resetHandle();
-                        const magicConstant = 0.005;
+                        const magicConstant = 0.006;
 
                         // Shoot the puck!
                         this.puck.applyForce(
