@@ -3,7 +3,7 @@ import { Theme } from "../../lib/theme";
 
 enum Handle {
     CENTER = 0,
-    DRAWING = 1,
+    PULLING = 1,
     RELEASE = 2,
     START_SHOOT = 3,
     SHOOTING = 4,
@@ -16,10 +16,8 @@ export default class Puck {
     handle: Phaser.Physics.Matter.Image;
     center: Phaser.GameObjects.Image;
 
-    slingGraphicsA: Phaser.GameObjects.Graphics;
-    slingPolygonA: Phaser.Geom.Polygon;
-    slingGraphicsB: Phaser.GameObjects.Graphics;
-    slingPolygonB: Phaser.Geom.Polygon;
+    slingGraphics: Phaser.GameObjects.Graphics;
+    slingPolygon: Phaser.Geom.Polygon;
 
     arrowGraphics: Phaser.GameObjects.Graphics;
     arrowPolygon: Phaser.Geom.Polygon;
@@ -27,7 +25,7 @@ export default class Puck {
     pointerPos: Phaser.Math.Vector2;
 
     isHandleReset: boolean;
-    isHandleDrawing: boolean;
+    isHandlePulling: boolean;
     isHandleInMotion: boolean;
     canHandleShoot: boolean;
 
@@ -39,15 +37,13 @@ export default class Puck {
     handleRadius: number;
 
     bounce: number;
-    force: number;
+    maxPullDistance: number;
 
     constructor(
         scene: Phaser.Scene,
         start_x: number,
         start_y: number,
-        theme: Theme,
-        force: number = 10,
-        bounce: number = 0.9
+        theme: Theme
     ) {
         // Init -----------------------------------------------
         this.scene = scene;
@@ -58,13 +54,13 @@ export default class Puck {
         // Puck states ---------------------------------------
         this.isPuckInMotion = false;
         this.isHandleReset = true;
-        this.isHandleDrawing = false;
+        this.isHandlePulling = false;
         this.isHandleInMotion = false;
         this.canHandleShoot = false;
 
         // Physics properties --------------------------------
-        this.bounce = bounce;
-        this.force = force;
+        this.bounce = 0.9;
+        this.maxPullDistance = 160;
 
         // Main objects ------------------------------------------------
         const puckGraphics = scene.add.graphics();
@@ -75,7 +71,7 @@ export default class Puck {
         this.puck = scene.matter.add.image(start_x, start_y, "puckGraphics");
         this.puck.setDepth(1);
         this.puck.setCircle(25);
-        this.puck.setBounce(bounce);
+        this.puck.setBounce(this.bounce);
 
         const centerGraphics = scene.add.graphics();
         centerGraphics.fillStyle(theme.tertiary);
@@ -106,32 +102,37 @@ export default class Puck {
         this.pointerPos = new Phaser.Math.Vector2(0, 0);
 
         // Control events ----------------------------------------------
+        window.document.body.style.cursor = "grab";
         scene.input.on("pointerdown", (pointer: any) => {
-            this.isHandleDrawing = true;
+            this.isHandlePulling = true;
+            window.document.body.style.cursor = "grabbing";
             this.pointerPos.set(pointer.x, pointer.y);
         });
         scene.input.on("pointerup", (pointer: any) => {
-            this.isHandleDrawing = false;
+            this.isHandlePulling = false;
+            window.document.body.style.cursor = "grab";
             this.pointerPos.set(pointer.x, pointer.y);
         });
         scene.input.on("pointermove", (pointer: any) => {
-            if (this.isHandleDrawing) {
+            if (this.isHandlePulling) {
+                window.document.body.style.cursor = "grabbing";
                 this.pointerPos.set(pointer.x, pointer.y);
             }
         });
 
         // Graphics objects --------------------------------------------
-        const points = [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-        ];
+        const initPoints = [0, 0, 0, 0, 0, 0, 0, 0];
         const slingStyle = { fillStyle: { color: theme.tertiary } };
-        this.slingPolygonA = new Phaser.Geom.Polygon(points);
-        this.slingGraphicsA = this.scene.add.graphics(slingStyle);
-        this.slingGraphicsA.fillPoints(this.slingPolygonA.points, true);
-        this.slingGraphicsA.setDepth(10);
+        this.slingPolygon = new Phaser.Geom.Polygon(initPoints);
+        this.slingGraphics = this.scene.add.graphics(slingStyle);
+        this.slingGraphics.fillPoints(this.slingPolygon.points, false);
+        this.slingGraphics.setDepth(0);
+
+        const arrowStyle = { fillStyle: { color: theme.primary } };
+        this.arrowPolygon = new Phaser.Geom.Polygon(initPoints);
+        this.arrowGraphics = this.scene.add.graphics(arrowStyle);
+        this.arrowGraphics.fillPoints(this.arrowPolygon.points, false);
+        this.arrowGraphics.setDepth(10);
     }
 
     private worldToLocalPos(pos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
@@ -143,37 +144,46 @@ export default class Puck {
         this.handle.setPosition(this.puck.x, this.puck.y);
 
         this.isHandleReset = true;
-        this.isHandleDrawing = false;
+        this.isHandlePulling = false;
         this.isHandleInMotion = false;
         this.canHandleShoot = false;
     }
 
-    private drawHandle() {
+    private pullHandle() {
         this.isHandleReset = false;
 
-        const directionX = this.pointerPos.x - this.handle.x;
-        const directionY = this.pointerPos.y - this.handle.y;
-        const distance = Math.sqrt(
-            directionX * directionX + directionY * directionY
+        const oldPos = this.puck.getCenter();
+
+        // Interpolated position
+        const newPos = Phaser.Math.LinearXY(
+            this.handle.getCenter(),
+            this.pointerPos,
+            0.1
         );
-        const normzDirection = {
-            x: directionX / distance,
-            y: directionY / distance,
-        };
-        const forceMagnitude = 0.00005 * distance; // Adjust the force magnitude as needed
-        const force = new Phaser.Math.Vector2(
-            normzDirection.x * forceMagnitude,
-            normzDirection.y * forceMagnitude
+
+        // Calculate distance from puck
+        const distance = Phaser.Math.Distance.Between(
+            oldPos.x,
+            oldPos.y,
+            newPos.x,
+            newPos.y
         );
-        this.handle.applyForce(force);
-        // Apply damping to reduce the velocity as the puck gets closer to the pointer
-        const damping = 0.1; // Adjust the damping factor as needed
-        if (this.handle.body) {
-            this.handle.setVelocity(
-                this.handle.body.velocity.x * damping,
-                this.handle.body.velocity.y * damping
-            );
+
+        if (distance > this.maxPullDistance) {
+            // Normalize direction
+            const direction = new Phaser.Math.Vector2(
+                newPos.x - oldPos.x,
+                newPos.y - oldPos.y
+            )
+                .normalize()
+                .scale(this.maxPullDistance); // Scale to maxPullDistance
+
+            // Constrain position to maxPullDistance
+            newPos.x = oldPos.x + direction.x;
+            newPos.y = oldPos.y + direction.y;
         }
+
+        this.handle.setPosition(newPos.x, newPos.y);
     }
 
     private readyShootHandle() {
@@ -187,21 +197,16 @@ export default class Puck {
     }
 
     private shootHandle() {
-        const center = new Phaser.Math.Vector2(this.puck.x, this.puck.y);
-        const directionX = center.x - this.handle.x;
-        const directionY = center.y - this.handle.y;
-        const distance = Math.sqrt(
-            directionX * directionX + directionY * directionY
+        const direction = Phaser.Math.Angle.BetweenPoints(
+            this.handle.getCenter(),
+            this.puck.getCenter()
         );
-        const normzDirection = {
-            x: directionX / distance,
-            y: directionY / distance,
-        };
-        const forceMagnitude = 0.00005 * Math.min(distance, this.force); // Adjust the force magnitude as needed
+        const accelerate = 0.0005;
         const forceVector = new Phaser.Math.Vector2(
-            normzDirection.x * forceMagnitude,
-            normzDirection.y * forceMagnitude
+            Math.cos(direction) * accelerate,
+            Math.sin(direction) * accelerate
         );
+
         this.handle.applyForce(forceVector);
     }
 
@@ -220,13 +225,13 @@ export default class Puck {
 
     private getState() {
         // When puck handle is at the center of the puck and not interacted with
-        if (this.isHandleReset && !this.isHandleDrawing) return Handle.CENTER;
-        // When player is drawing the puck handle
-        else if (this.isHandleDrawing) return Handle.DRAWING;
+        if (this.isHandleReset && !this.isHandlePulling) return Handle.CENTER;
+        // When player is pulling the puck handle
+        else if (this.isHandlePulling) return Handle.PULLING;
         // 1 frame after player releases the puck handle
         else if (
             !this.isHandleReset &&
-            !this.isHandleDrawing &&
+            !this.isHandlePulling &&
             !this.canHandleShoot &&
             !this.isHandleInMotion
         )
@@ -237,36 +242,90 @@ export default class Puck {
         else if (this.isHandleInMotion) return Handle.SHOOTING;
     }
 
-    private renderSling() {
-        const { x: puckX, y: puckY } = this.puck.getCenter();
-        const { x: handleX, y: handleY } = this.handle.getCenter();
+    private renderSling(
+        puckX: number,
+        puckY: number,
+        handleX: number,
+        handleY: number
+    ) {
         const r = Phaser.Math.Distance.Between(puckX, puckY, handleX, handleY);
-        const s = this.puckRadius;
-        const u = this.handleRadius;
-        const alpha = Math.atan((s - u) / r);
-        const beta = Math.PI - alpha;
+        const pr = this.puckRadius;
+        const hr = this.handleRadius;
+        const angle = Phaser.Math.Angle.BetweenPoints(
+            { x: puckX, y: puckY },
+            { x: handleX, y: handleY }
+        );
+        const alpha = Math.asin((pr - hr) / r);
+        const beta = Math.PI * 2 + alpha;
 
-        const a1 = (s - u) * Math.sin(alpha) + puckX;
-        const a2 = (s - u) * Math.cos(alpha) + puckY;
-        const b1 = (s - u) * Math.sin(beta) + handleX;
-        const b2 = (s - u) * Math.cos(beta) + handleY;
+        const a1 = pr * Math.sin(alpha - angle) + puckX;
+        const a2 = pr * Math.cos(alpha - angle) + puckY;
 
-        this.slingPolygonA.setTo([
-            { x: this.puck.x, y: this.puck.y },
-            { x: this.handle.x, y: this.handle.y },
-            { x: b1, y: b2 },
-            { x: a1, y: a2 },
-        ]);
+        const b1 = hr * Math.sin(beta - angle) + handleX;
+        const b2 = hr * Math.cos(beta - angle) + handleY;
 
-        this.slingGraphicsA.clear();
-        this.slingGraphicsA.fillPoints(this.slingPolygonA.points, true);
+        const c1 = hr * -Math.sin(-beta - angle) + handleX;
+        const c2 = hr * -Math.cos(-beta - angle) + handleY;
+
+        const d1 = pr * -Math.sin(-alpha - angle) + puckX;
+        const d2 = pr * -Math.cos(-alpha - angle) + puckY;
+
+        this.slingPolygon.setTo([a1, a2, b1, b2, c1, c2, d1, d2]);
+        this.slingGraphics.clear();
+        this.slingGraphics.fillPoints(this.slingPolygon.points, true);
     }
 
-    private renderArrow() {}
+    private renderArrow(
+        puckX: number,
+        puckY: number,
+        handleX: number,
+        handleY: number
+    ) {
+        const scaler = Phaser.Math.Distance.BetweenPoints(
+            this.puck.getCenter(),
+            this.handle.getCenter()
+        );
+
+        // Interpolate scaler between 0 and 1
+        const normzscaler = Phaser.Math.Clamp(
+            scaler / this.maxPullDistance,
+            0,
+            1
+        );
+
+        const k = this.puckRadius + 10 * normzscaler;
+        const l = 32 * normzscaler;
+        const m = 20 * normzscaler;
+
+        const angle =
+            -1 *
+            (Phaser.Math.Angle.BetweenPoints(
+                { x: puckX, y: puckY },
+                { x: handleX, y: handleY }
+            ) +
+                Math.PI / 2);
+
+        const a1 = (k + l) * Math.sin(angle) + puckX;
+        const a2 = (k + l) * Math.cos(angle) + puckY;
+
+        const c1 = k * Math.sin(angle) + puckX;
+        const c2 = k * Math.cos(angle) + puckY;
+
+        const b1 = m * Math.sin(angle + Math.PI / 2) + c1;
+        const b2 = m * Math.cos(angle + Math.PI / 2) + c2;
+
+        const d1 = m * Math.sin(angle - Math.PI / 2) + c1;
+        const d2 = m * Math.cos(angle - Math.PI / 2) + c2;
+
+        this.arrowPolygon.setTo([a1, a2, b1, b2, c1, c2, d1, d2]);
+        this.arrowGraphics.clear();
+        this.arrowGraphics.fillPoints(this.arrowPolygon.points, true);
+    }
 
     public update() {
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
+            this.center.setPosition(this.puck.x, this.puck.y);
 
             // Check if the puck has stopped moving
             const { x, y } = this.puck.getVelocity();
@@ -278,8 +337,8 @@ export default class Puck {
                 case Handle.CENTER:
                     this.resetHandle();
                     break;
-                case Handle.DRAWING:
-                    this.drawHandle();
+                case Handle.PULLING:
+                    this.pullHandle();
                     break;
                 case Handle.RELEASE:
                     this.readyShootHandle();
@@ -311,12 +370,20 @@ export default class Puck {
                 default:
                     break;
             }
-        }
 
-        // Constant rendering things
-        this.center.setPosition(this.puck.x, this.puck.y);
-        this.renderSling();
-        this.renderArrow();
+            this.renderSling(
+                this.puck.x,
+                this.puck.y,
+                this.handle.x,
+                this.handle.y
+            );
+            this.renderArrow(
+                this.puck.x,
+                this.puck.y,
+                this.handle.x,
+                this.handle.y
+            );
+        }
     }
 }
 
