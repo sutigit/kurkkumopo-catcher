@@ -40,7 +40,7 @@ Make sure you have the following software installed on your machine:
 
 ## Contributing
 
-1. **Fork the repository:**d
+1. **Fork the repository:**
 
     Click the "Fork" button at the top right corner of the repository page.
 
