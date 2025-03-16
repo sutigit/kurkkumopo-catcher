@@ -1,6 +1,8 @@
 # Kurkkumopo Catcher
 
-Kurkkumopo Catcher is a game where the main objective is to shoot a puck and hit the target (kurkkumopo) with the least distance possible, in a computer-generated map full of obstacles made by contributors! Dominate the leaderboard as each weak the game resets and the best player wins glory and a unique kurkkumopo emblem! The game is in the early stages of development. Check out the roadmap to find things waiting to get built!
+Kurkkumopo Catcher is a game where the main objective is to shoot a puck and hit the target (kurkkumopo) with the least distance possible, in a computer-generated map full of obstacles made by contributors! Dominate the leaderboard as each weak the game resets and the best player wins glory and a unique kurkkumopo emblem! The game is in the early stages of development. Check out the rough sketch of the roadmap to find things to contribute. Game is **not yet Live**.
+
+The project is built with React TS + [Phaser.js](https://phaser.io/) library. If you are in Toska Slack feel free ask anything about the project.
 
 ![Game Screenshot](public/assets/kurkkumopo-catcher.png)
 
@@ -74,7 +76,12 @@ Make sure you have the following software installed on your machine:
 
 ### Things waiting to get built
 
+-   Well first the game should actually have a start and ending
+-   Game joining system with a username (Maybe github account linking)
+-   Server Deployment
 -   The coolest kurkkumopo target
+-   Minimap
+-   Backend for score keeping
 -   Live Leaderboard
 -   computer-generated obstacle map
 -   Obstacle building API for easy obstacle contributing
