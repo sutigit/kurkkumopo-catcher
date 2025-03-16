@@ -70,6 +70,10 @@ Make sure you have the following software installed on your machine:
 
     Go to the repository page on GitHub and click the "New Pull Request" button. Provide some description of your changes and submit the pull request.
 
+## Roadmap
+
+-   Coming soon
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
