@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { EventBus } from "./EventBus";
 import { AUTO, Game } from "phaser";
 import { GameScene } from "./scenes/GameScene";
+import { Preload } from "./Preload";
 
 const WINDOW_WIDTH = window.innerWidth;
 const WINDOW_HEIGHT = window.innerHeight;
@@ -15,7 +16,7 @@ const config: Phaser.Types.Core.GameConfig = {
     physics: {
         default: "matter",
         matter: {
-            debug: false,
+            debug: true,
             gravity: {
                 y: 0,
                 x: 0,
@@ -23,8 +24,7 @@ const config: Phaser.Types.Core.GameConfig = {
             enableSleeping: true,
         },
     },
-    // I guess this is sort of the activation order of the scenes
-    scene: [GameScene],
+    scene: [Preload, GameScene],
 };
 
 const StartGame = (parent: string) => {
