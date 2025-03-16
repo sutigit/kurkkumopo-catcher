@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { Theme } from "../../lib/theme";
 
 enum Handle {
     CENTER = 0,
@@ -10,8 +11,18 @@ enum Handle {
 
 export default class Puck {
     scene: Phaser.Scene;
+    theme: Theme;
     puck: Phaser.Physics.Matter.Image;
     handle: Phaser.Physics.Matter.Image;
+    center: Phaser.GameObjects.Image;
+
+    slingGraphicsA: Phaser.GameObjects.Graphics;
+    slingPolygonA: Phaser.Geom.Polygon;
+    slingGraphicsB: Phaser.GameObjects.Graphics;
+    slingPolygonB: Phaser.Geom.Polygon;
+
+    arrowGraphics: Phaser.GameObjects.Graphics;
+    arrowPolygon: Phaser.Geom.Polygon;
 
     pointerPos: Phaser.Math.Vector2;
 
@@ -24,6 +35,8 @@ export default class Puck {
 
     x: number;
     y: number;
+    puckRadius: number;
+    handleRadius: number;
 
     bounce: number;
     force: number;
@@ -32,10 +45,12 @@ export default class Puck {
         scene: Phaser.Scene,
         start_x: number,
         start_y: number,
+        theme: Theme,
         force: number = 10,
         bounce: number = 0.9
     ) {
         this.scene = scene;
+        this.theme = theme;
         this.x = start_x;
         this.y = start_y;
 
@@ -52,29 +67,70 @@ export default class Puck {
         this.force = force;
         this.pointerPos = new Phaser.Math.Vector2(0, 0);
 
-        // Main objects
-        this.puck = scene.matter.add.image(start_x, start_y, "puck");
+        // Main objects ------------------------------------------------
+        const puckGraphics = scene.add.graphics();
+        puckGraphics.fillStyle(theme.secondary);
+        puckGraphics.fillCircle(25, 25, 25);
+        puckGraphics.generateTexture("puckGraphics", 50, 50);
+        puckGraphics.destroy(); // Remove the graphics after converting it to a texture
+        this.puck = scene.matter.add.image(start_x, start_y, "puckGraphics");
+        this.puck.setDepth(1);
         this.puck.setCircle(25);
         this.puck.setBounce(bounce);
 
-        this.handle = scene.matter.add.image(start_x, start_y, "puckHandle");
+        const centerGraphics = scene.add.graphics();
+        centerGraphics.fillStyle(theme.tertiary);
+        centerGraphics.fillCircle(7, 7, 7);
+        centerGraphics.generateTexture("centerGraphics", 14, 14);
+        centerGraphics.destroy(); // Remove the graphics after converting it to a texture
+        this.center = scene.add
+            .image(this.puck.x, this.puck.y, "centerGraphics")
+            .setDepth(2);
+
+        const handleGraphics = scene.add.graphics();
+        handleGraphics.fillStyle(theme.primary);
+        handleGraphics.fillCircle(7, 7, 7);
+        handleGraphics.generateTexture("handleGraphics", 14, 14);
+        handleGraphics.destroy(); // Remove the graphics after converting it to a texture
+        this.handle = scene.matter.add.image(
+            start_x,
+            start_y,
+            "handleGraphics"
+        );
+        this.handle.setDepth(3);
         this.handle.setCircle(7);
         this.handle.setSensor(true);
 
-        // Control events
-        this.scene.input.on("pointerdown", (pointer: any) => {
+        // Geometrics --------------------------------------------------
+        this.puckRadius = this.puck.getBounds().width / 2;
+        this.handleRadius = this.handle.getBounds().width / 2;
+
+        // Control events ----------------------------------------------
+        scene.input.on("pointerdown", (pointer: any) => {
             this.isHandleDrawing = true;
             this.pointerPos.set(pointer.x, pointer.y);
         });
-        this.scene.input.on("pointerup", (pointer: any) => {
+        scene.input.on("pointerup", (pointer: any) => {
             this.isHandleDrawing = false;
             this.pointerPos.set(pointer.x, pointer.y);
         });
-        this.scene.input.on("pointermove", (pointer: any) => {
+        scene.input.on("pointermove", (pointer: any) => {
             if (this.isHandleDrawing) {
                 this.pointerPos.set(pointer.x, pointer.y);
             }
         });
+
+        // Graphics objects --------------------------------------------
+        const points = [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+        ];
+        const slingStyle = { fillStyle: { color: theme.tertiary } };
+        this.slingPolygonA = new Phaser.Geom.Polygon(points);
+        this.slingGraphicsA = this.scene.add.graphics(slingStyle);
+        this.slingGraphicsA.fillPoints(this.slingPolygonA.points, true);
     }
 
     worldToLocalPos(pos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
@@ -180,6 +236,33 @@ export default class Puck {
         else if (this.isHandleInMotion) return Handle.SHOOTING;
     }
 
+    renderSling() {
+        const { x: puckX, y: puckY } = this.puck.getCenter();
+        const { x: handleX, y: handleY } = this.handle.getCenter();
+        const r = Phaser.Math.Distance.Between(puckX, puckY, handleX, handleY);
+        const s = this.puckRadius;
+        const u = this.handleRadius;
+        const alpha = Math.atan((s - u) / r);
+        const beta = Math.PI - alpha;
+
+        const a1 = (s - u) * Math.sin(alpha) + puckX;
+        const a2 = (s - u) * Math.cos(alpha) + puckY;
+        const b1 = (s - u) * Math.sin(beta) + handleX;
+        const b2 = (s - u) * Math.cos(beta) + handleY;
+
+        this.slingPolygonA.setTo([
+            { x: this.puck.x, y: this.puck.y },
+            { x: this.handle.x, y: this.handle.y },
+            { x: b1, y: b2 },
+            { x: a1, y: a2 },
+        ]);
+
+        this.slingGraphicsA.clear();
+        this.slingGraphicsA.fillPoints(this.slingPolygonA.points, true);
+    }
+
+    renderArrow() {}
+
     update() {
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
@@ -228,6 +311,10 @@ export default class Puck {
                     break;
             }
         }
+
+        // Constant rendering things
+        this.renderSling();
+        this.center.setPosition(this.puck.x, this.puck.y);
     }
 }
 
