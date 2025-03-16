@@ -14,7 +14,6 @@ export class GameScene extends Scene {
     constructor() {
         super("GameScene");
         let randomTheme = Math.floor(Math.random() * themes.length);
-        console.log("randomTheme", randomTheme);
         this.theme = themes[randomTheme];
     }
 

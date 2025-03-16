@@ -1,6 +1,8 @@
 # Kurkkumopo Catcher
 
-Kurkkumopo Catcher is a game where the main objective is to shoot a puck to hit the target (kurkkumopo). This project is in the very early stages of development.
+Kurkkumopo Catcher is a game where the main objective is to shoot a puck to hit the target (kurkkumopo). Early stage devving. Check out roadmap soon to contribute!
+
+![Game Screenshot](public/assets/kurkkumopo-catcher.png)
 
 ## Getting Started
 
