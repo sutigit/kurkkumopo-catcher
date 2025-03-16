@@ -76,18 +76,18 @@ Make sure you have the following software installed on your machine:
 
 ### Things waiting to get built
 
--   Well first the game should actually have a start and ending
--   Game joining system with a username (Maybe github account linking)
--   Server Deployment
--   The coolest kurkkumopo target
--   Minimap
--   Backend for score keeping
--   Live Leaderboard
--   computer-generated obstacle map
--   Obstacle building API for easy obstacle contributing
--   AI-generated kurkkumopo emblem system
--   Slack leaderboard notification integration
--   Good ideas from you
+🥒 Well first the game should actually have a start and ending
+🥒 Game joining system with a username (Maybe github account linking)
+🥒 Server Deployment
+🥒 The coolest kurkkumopo target
+🥒 Minimap
+🥒 Backend for score keeping
+🥒 Live Leaderboard
+🥒 computer-generated obstacle map
+🥒 Obstacle building API for easy obstacle contributing
+🥒 AI-generated kurkkumopo emblem system
+🥒 Slack leaderboard notification integration
+🥒 Good ideas from you
 
 ## License
 
