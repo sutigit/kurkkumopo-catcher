@@ -9,43 +9,85 @@ enum HandleState {
 }
 
 export default class Puck {
+    scene: Phaser.Scene;
     puck: Phaser.Physics.Matter.Image;
     handle: Phaser.Physics.Matter.Image;
+
+    pointerPos: Phaser.Math.Vector2;
 
     isCenter: boolean;
     isDrawing: boolean;
     isShooting: boolean;
     canShoot: boolean;
 
-    constructor(scene: Phaser.Scene, start_x: number, start_y: number) {
+    bounce: number;
+    force: number;
+
+    constructor(
+        scene: Phaser.Scene,
+        start_x: number,
+        start_y: number,
+        force: number = 10,
+        bounce: number = 0.9
+    ) {
+        this.scene = scene;
+
+        // States
         this.isCenter = true;
         this.isDrawing = false;
         this.isShooting = false;
         this.canShoot = false;
 
+        // Physics
+        this.bounce = bounce;
+        this.force = force;
+
+        // Main objects
         this.puck = scene.matter.add.image(start_x, start_y, "puck");
         this.puck.setCircle(25);
-        this.puck.setBounce(0.9);
+        this.puck.setBounce(this.bounce);
 
         this.handle = scene.matter.add.image(start_x, start_y, "puckHandle");
         this.handle.setCircle(7);
         this.handle.setSensor(true);
+
+        this.pointerPos = new Phaser.Math.Vector2(0, 0);
+
+        // Control events
+        this.scene.input.on("pointerdown", (pointer: any) => {
+            this.isDrawing = true;
+            this.pointerPos.set(pointer.x, pointer.y);
+        });
+        this.scene.input.on("pointerup", (pointer: any) => {
+            this.isDrawing = false;
+            this.pointerPos.set(pointer.x, pointer.y);
+        });
+        this.scene.input.on("pointermove", (pointer: any) => {
+            if (this.isDrawing) {
+                this.pointerPos.set(pointer.x, pointer.y);
+            }
+        });
+    }
+
+    worldToLocalPos(pos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+        return this.puck.getWorldTransformMatrix().applyInverse(pos.x, pos.y);
     }
 
     reset() {
         this.handle.setVelocity(0, 0);
         this.handle.setPosition(this.puck.x, this.puck.y);
+
         this.isCenter = true;
         this.isDrawing = false;
         this.canShoot = false;
         this.isShooting = false;
     }
 
-    draw(pointerPos: Phaser.Math.Vector2) {
+    draw() {
         this.isCenter = false;
 
-        const directionX = pointerPos.x - this.handle.x;
-        const directionY = pointerPos.y - this.handle.y;
+        const directionX = this.pointerPos.x - this.handle.x;
+        const directionY = this.pointerPos.y - this.handle.y;
         const distance = Math.sqrt(
             directionX * directionX + directionY * directionY
         );
@@ -90,17 +132,17 @@ export default class Puck {
             x: directionX / distance,
             y: directionY / distance,
         };
-        const forceMagnitude = 0.00005 * Math.min(distance, 10); // Adjust the force magnitude as needed
-        const force = new Phaser.Math.Vector2(
+        const forceMagnitude = 0.00005 * Math.min(distance, this.force); // Adjust the force magnitude as needed
+        const forceVector = new Phaser.Math.Vector2(
             normzDirection.x * forceMagnitude,
             normzDirection.y * forceMagnitude
         );
-        this.handle.applyForce(force);
+        this.handle.applyForce(forceVector);
     }
 
-    isCenterContact(pointerPos: Phaser.Math.Vector2): boolean {
+    isCenterContact(): boolean {
         const handleLocalPos = this.worldToLocalPos(this.handle.getCenter());
-        const pointerLocalPos = this.worldToLocalPos(pointerPos);
+        const pointerLocalPos = this.worldToLocalPos(this.pointerPos);
 
         const result =
             Math.sign(handleLocalPos.x) === -Math.sign(pointerLocalPos.x) &&
@@ -109,12 +151,6 @@ export default class Puck {
                 : false;
 
         return result;
-    }
-
-    logStates() {
-        console.log(
-            `isCenter: ${this.isCenter}, isDrawing: ${this.isDrawing}, canShoot: ${this.canShoot}, isShooting: ${this.isShooting}`
-        );
     }
 
     getHandleState() {
@@ -136,15 +172,11 @@ export default class Puck {
         else if (this.isShooting) return HandleState.SHOOTING;
     }
 
-    worldToLocalPos(pos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
-        return this.puck.getWorldTransformMatrix().applyInverse(pos.x, pos.y);
-    }
-
-    update(pointerPos: Phaser.Math.Vector2) {
+    update() {
         if (this.getHandleState() === HandleState.CENTER) {
             this.reset();
         } else if (this.getHandleState() === HandleState.DRAWING) {
-            this.draw(pointerPos);
+            this.draw();
         } else if (this.getHandleState() === HandleState.RELEASE) {
             this.readyShoot();
         } else if (this.getHandleState() === HandleState.START_SHOOT) {
@@ -153,7 +185,7 @@ export default class Puck {
             this.shoot();
 
             // Check if handle is in contact with the center of the puck again
-            if (this.isCenterContact(pointerPos)) {
+            if (this.isCenterContact()) {
                 this.reset();
             }
         }

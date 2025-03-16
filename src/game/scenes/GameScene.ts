@@ -11,7 +11,7 @@ import Puck from "../objects/Puck";
 // const TERTIARY = 0xA9B5DF;
 const BACKGROUND = 0xfff2f2;
 
-const START_POINT = { x: window.screen.width / 2, y: window.screen.height / 2 };
+const START_POINT = { x: 400, y: 400 };
 
 export class GameScene extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -20,8 +20,6 @@ export class GameScene extends Scene {
     // goal: Phaser.Physics.Matter.Image;
     // obstacle: Phaser.Physics.Matter.Image;
     puck: Puck;
-
-    pointerPos: Phaser.Math.Vector2;
 
     constructor() {
         super("GameScene");
@@ -41,30 +39,11 @@ export class GameScene extends Scene {
         // this.goal.setStatic(true);
         // this.goal.setSensor(true);
 
-        // Controls
-        this.pointerPos = new Phaser.Math.Vector2(0, 0);
-
-        this.input.on("pointerdown", (pointer: any) => {
-            this.puck.isDrawing = true;
-            this.pointerPos.set(pointer.x, pointer.y);
-        });
-
-        this.input.on("pointerup", (pointer: any) => {
-            this.puck.isDrawing = false;
-            this.pointerPos.set(pointer.x, pointer.y);
-        });
-
-        this.input.on("pointermove", (pointer: any) => {
-            if (this.puck.isDrawing) {
-                this.pointerPos.set(pointer.x, pointer.y);
-            }
-        });
-
         EventBus.emit("game-ready", this);
     }
 
     update() {
-        this.puck.update(this.pointerPos);
+        this.puck.update();
     }
 }
 
