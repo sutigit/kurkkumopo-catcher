@@ -30,7 +30,7 @@ export class GameScene extends Scene {
     }
 
     update() {
-        this.puck.update();
+        this.puck.main();
     }
 }
 

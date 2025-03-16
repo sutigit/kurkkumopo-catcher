@@ -322,7 +322,7 @@ export default class Puck {
         this.arrowGraphics.fillPoints(this.arrowPolygon.points, true);
     }
 
-    public update() {
+    public main() {
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
             this.center.setPosition(this.puck.x, this.puck.y);
