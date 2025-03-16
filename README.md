@@ -1,4 +1,4 @@
-# Kurkkumopo Catcher
+# Kurkkumopo Catcher 🎮 🥒🛵
 
 Kurkkumopo Catcher is a game where the main objective is to shoot a puck and hit the target (kurkkumopo) with the least distance possible, in a computer-generated map full of obstacles made by contributors! Dominate the leaderboard as each weak the game resets and the best player wins glory and a unique kurkkumopo emblem! The game is in pre-pre-pre-pre-pre-pre-alpha stage. Check out the rough sketch of the roadmap to find things to contribute. This project is built with the great _Toska community_ in mind. Game is **not yet Live**.
 
