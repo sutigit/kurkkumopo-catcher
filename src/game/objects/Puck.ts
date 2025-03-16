@@ -49,23 +49,22 @@ export default class Puck {
         force: number = 10,
         bounce: number = 0.9
     ) {
+        // Init -----------------------------------------------
         this.scene = scene;
         this.theme = theme;
         this.x = start_x;
         this.y = start_y;
 
+        // Puck states ---------------------------------------
         this.isPuckInMotion = false;
-
         this.isHandleReset = true;
         this.isHandleDrawing = false;
         this.isHandleInMotion = false;
         this.canHandleShoot = false;
 
-        this.isPuckInMotion = false;
-
+        // Physics properties --------------------------------
         this.bounce = bounce;
         this.force = force;
-        this.pointerPos = new Phaser.Math.Vector2(0, 0);
 
         // Main objects ------------------------------------------------
         const puckGraphics = scene.add.graphics();
@@ -104,6 +103,7 @@ export default class Puck {
         // Geometrics --------------------------------------------------
         this.puckRadius = this.puck.getBounds().width / 2;
         this.handleRadius = this.handle.getBounds().width / 2;
+        this.pointerPos = new Phaser.Math.Vector2(0, 0);
 
         // Control events ----------------------------------------------
         scene.input.on("pointerdown", (pointer: any) => {
@@ -131,13 +131,14 @@ export default class Puck {
         this.slingPolygonA = new Phaser.Geom.Polygon(points);
         this.slingGraphicsA = this.scene.add.graphics(slingStyle);
         this.slingGraphicsA.fillPoints(this.slingPolygonA.points, true);
+        this.slingGraphicsA.setDepth(10);
     }
 
-    worldToLocalPos(pos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+    private worldToLocalPos(pos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
         return this.puck.getWorldTransformMatrix().applyInverse(pos.x, pos.y);
     }
 
-    resetHandle() {
+    private resetHandle() {
         this.handle.setVelocity(0, 0);
         this.handle.setPosition(this.puck.x, this.puck.y);
 
@@ -147,7 +148,7 @@ export default class Puck {
         this.canHandleShoot = false;
     }
 
-    drawHandle() {
+    private drawHandle() {
         this.isHandleReset = false;
 
         const directionX = this.pointerPos.x - this.handle.x;
@@ -175,17 +176,17 @@ export default class Puck {
         }
     }
 
-    readyShootHandle() {
+    private readyShootHandle() {
         this.handle.setVelocity(0, 0);
         this.canHandleShoot = true;
     }
 
-    startShootHandle() {
+    private startShootHandle() {
         this.isHandleInMotion = true;
         this.canHandleShoot = false;
     }
 
-    shootHandle() {
+    private shootHandle() {
         const center = new Phaser.Math.Vector2(this.puck.x, this.puck.y);
         const directionX = center.x - this.handle.x;
         const directionY = center.y - this.handle.y;
@@ -204,7 +205,7 @@ export default class Puck {
         this.handle.applyForce(forceVector);
     }
 
-    isCenterContact(): boolean {
+    private isCenterContact(): boolean {
         const handleLocalPos = this.worldToLocalPos(this.handle.getCenter());
         const pointerLocalPos = this.worldToLocalPos(this.pointerPos);
 
@@ -217,7 +218,7 @@ export default class Puck {
         return result;
     }
 
-    getState() {
+    private getState() {
         // When puck handle is at the center of the puck and not interacted with
         if (this.isHandleReset && !this.isHandleDrawing) return Handle.CENTER;
         // When player is drawing the puck handle
@@ -236,7 +237,7 @@ export default class Puck {
         else if (this.isHandleInMotion) return Handle.SHOOTING;
     }
 
-    renderSling() {
+    private renderSling() {
         const { x: puckX, y: puckY } = this.puck.getCenter();
         const { x: handleX, y: handleY } = this.handle.getCenter();
         const r = Phaser.Math.Distance.Between(puckX, puckY, handleX, handleY);
@@ -261,9 +262,9 @@ export default class Puck {
         this.slingGraphicsA.fillPoints(this.slingPolygonA.points, true);
     }
 
-    renderArrow() {}
+    private renderArrow() {}
 
-    update() {
+    public update() {
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
 
@@ -313,8 +314,9 @@ export default class Puck {
         }
 
         // Constant rendering things
-        this.renderSling();
         this.center.setPosition(this.puck.x, this.puck.y);
+        this.renderSling();
+        this.renderArrow();
     }
 }
 
