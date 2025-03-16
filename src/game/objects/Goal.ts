@@ -1,10 +1,13 @@
-import { Physics } from 'phaser';
+import { Physics } from "phaser";
 
-export class Goal extends Physics.Matter.Image {
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
-        super(scene.matter.world, x, y, texture);
-        this.setCircle(28);
-        this.setStatic(true);
-        this.setSensor(true);
+export default class Goal {
+    goal: Physics.Matter.Image;
+
+    constructor(scene: Phaser.Scene, x: number, y: number) {
+        this.goal = scene.matter.add.image(x, y, "goal");
+        this.goal.setCircle(28);
+        this.goal.setStatic(true);
+        this.goal.setSensor(true);
     }
 }
+

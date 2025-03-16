@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-enum HandleState {
+enum Handle {
     CENTER = 0,
     DRAWING = 1,
     RELEASE = 2,
@@ -15,10 +15,15 @@ export default class Puck {
 
     pointerPos: Phaser.Math.Vector2;
 
-    isCenter: boolean;
-    isDrawing: boolean;
-    isShooting: boolean;
-    canShoot: boolean;
+    isHandleReset: boolean;
+    isHandleDrawing: boolean;
+    isHandleInMotion: boolean;
+    canHandleShoot: boolean;
+
+    isPuckInMotion: boolean;
+
+    x: number;
+    y: number;
 
     bounce: number;
     force: number;
@@ -31,39 +36,42 @@ export default class Puck {
         bounce: number = 0.9
     ) {
         this.scene = scene;
+        this.x = start_x;
+        this.y = start_y;
 
-        // States
-        this.isCenter = true;
-        this.isDrawing = false;
-        this.isShooting = false;
-        this.canShoot = false;
+        this.isPuckInMotion = false;
 
-        // Physics
+        this.isHandleReset = true;
+        this.isHandleDrawing = false;
+        this.isHandleInMotion = false;
+        this.canHandleShoot = false;
+
+        this.isPuckInMotion = false;
+
         this.bounce = bounce;
         this.force = force;
+        this.pointerPos = new Phaser.Math.Vector2(0, 0);
 
         // Main objects
         this.puck = scene.matter.add.image(start_x, start_y, "puck");
         this.puck.setCircle(25);
-        this.puck.setBounce(this.bounce);
+        this.puck.setBounce(bounce);
 
         this.handle = scene.matter.add.image(start_x, start_y, "puckHandle");
         this.handle.setCircle(7);
         this.handle.setSensor(true);
 
-        this.pointerPos = new Phaser.Math.Vector2(0, 0);
-
         // Control events
         this.scene.input.on("pointerdown", (pointer: any) => {
-            this.isDrawing = true;
+            this.isHandleDrawing = true;
             this.pointerPos.set(pointer.x, pointer.y);
         });
         this.scene.input.on("pointerup", (pointer: any) => {
-            this.isDrawing = false;
+            this.isHandleDrawing = false;
             this.pointerPos.set(pointer.x, pointer.y);
         });
         this.scene.input.on("pointermove", (pointer: any) => {
-            if (this.isDrawing) {
+            if (this.isHandleDrawing) {
                 this.pointerPos.set(pointer.x, pointer.y);
             }
         });
@@ -73,18 +81,18 @@ export default class Puck {
         return this.puck.getWorldTransformMatrix().applyInverse(pos.x, pos.y);
     }
 
-    reset() {
+    resetHandle() {
         this.handle.setVelocity(0, 0);
         this.handle.setPosition(this.puck.x, this.puck.y);
 
-        this.isCenter = true;
-        this.isDrawing = false;
-        this.canShoot = false;
-        this.isShooting = false;
+        this.isHandleReset = true;
+        this.isHandleDrawing = false;
+        this.isHandleInMotion = false;
+        this.canHandleShoot = false;
     }
 
-    draw() {
-        this.isCenter = false;
+    drawHandle() {
+        this.isHandleReset = false;
 
         const directionX = this.pointerPos.x - this.handle.x;
         const directionY = this.pointerPos.y - this.handle.y;
@@ -111,17 +119,17 @@ export default class Puck {
         }
     }
 
-    readyShoot() {
+    readyShootHandle() {
         this.handle.setVelocity(0, 0);
-        this.canShoot = true;
+        this.canHandleShoot = true;
     }
 
-    startShoot() {
-        this.isShooting = true;
-        this.canShoot = false;
+    startShootHandle() {
+        this.isHandleInMotion = true;
+        this.canHandleShoot = false;
     }
 
-    shoot() {
+    shootHandle() {
         const center = new Phaser.Math.Vector2(this.puck.x, this.puck.y);
         const directionX = center.x - this.handle.x;
         const directionY = center.y - this.handle.y;
@@ -153,40 +161,70 @@ export default class Puck {
         return result;
     }
 
-    getHandleState() {
-        // When puck handle is at the center of the puck
-        if (this.isCenter && !this.isDrawing) return HandleState.CENTER;
+    getState() {
+        // When puck handle is at the center of the puck and not interacted with
+        if (this.isHandleReset && !this.isHandleDrawing) return Handle.CENTER;
         // When player is drawing the puck handle
-        else if (this.isDrawing) return HandleState.DRAWING;
-        // 1 frame after player releases the puck handle after drawing
+        else if (this.isHandleDrawing) return Handle.DRAWING;
+        // 1 frame after player releases the puck handle
         else if (
-            !this.isCenter &&
-            !this.isDrawing &&
-            !this.canShoot &&
-            !this.isShooting
+            !this.isHandleReset &&
+            !this.isHandleDrawing &&
+            !this.canHandleShoot &&
+            !this.isHandleInMotion
         )
-            return HandleState.RELEASE;
+            return Handle.RELEASE;
         // When the puck gets ready to travel
-        else if (this.canShoot) return HandleState.START_SHOOT;
+        else if (this.canHandleShoot) return Handle.START_SHOOT;
         // When the puck is in motion
-        else if (this.isShooting) return HandleState.SHOOTING;
+        else if (this.isHandleInMotion) return Handle.SHOOTING;
     }
 
     update() {
-        if (this.getHandleState() === HandleState.CENTER) {
-            this.reset();
-        } else if (this.getHandleState() === HandleState.DRAWING) {
-            this.draw();
-        } else if (this.getHandleState() === HandleState.RELEASE) {
-            this.readyShoot();
-        } else if (this.getHandleState() === HandleState.START_SHOOT) {
-            this.startShoot();
-        } else if (this.getHandleState() === HandleState.SHOOTING) {
-            this.shoot();
+        if (this.isPuckInMotion) {
+            this.handle.setPosition(this.puck.x, this.puck.y);
 
-            // Check if handle is in contact with the center of the puck again
-            if (this.isCenterContact()) {
-                this.reset();
+            const { x, y } = this.puck.getVelocity();
+            if (Math.abs(x) < 0.01 && Math.abs(y) < 0.01) {
+                this.isPuckInMotion = false;
+            }
+        } else {
+            switch (this.getState()) {
+                case Handle.CENTER:
+                    this.resetHandle();
+                    break;
+                case Handle.DRAWING:
+                    this.drawHandle();
+                    break;
+                case Handle.RELEASE:
+                    this.readyShootHandle();
+                    break;
+                case Handle.START_SHOOT:
+                    this.startShootHandle();
+                    break;
+                case Handle.SHOOTING:
+                    this.shootHandle();
+
+                    // Check if handle is in contact with the center of the puck again
+                    if (this.isCenterContact()) {
+                        const { x, y } = this.handle.getVelocity();
+                        this.resetHandle();
+                        const magicConstant = 0.005;
+
+                        // Shoot the puck!
+                        this.puck.applyForce(
+                            new Phaser.Math.Vector2(
+                                magicConstant * x,
+                                magicConstant * y
+                            )
+                        );
+
+                        this.isPuckInMotion = true;
+                    }
+                    break;
+
+                default:
+                    break;
             }
         }
     }

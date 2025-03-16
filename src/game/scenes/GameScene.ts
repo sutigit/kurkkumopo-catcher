@@ -1,7 +1,6 @@
 import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
-// import Goal from '../objects/Goal';
-
+import Goal from "../objects/Goal";
 import Puck from "../objects/Puck";
 
 // Game objects
@@ -11,15 +10,12 @@ import Puck from "../objects/Puck";
 // const TERTIARY = 0xA9B5DF;
 const BACKGROUND = 0xfff2f2;
 
-const START_POINT = { x: 400, y: 400 };
-
 export class GameScene extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
 
     // Game objects
-    // goal: Phaser.Physics.Matter.Image;
-    // obstacle: Phaser.Physics.Matter.Image;
     puck: Puck;
+    goal: Goal;
 
     constructor() {
         super("GameScene");
@@ -31,13 +27,8 @@ export class GameScene extends Scene {
         this.camera = this.cameras.main;
         this.camera.setBackgroundColor(BACKGROUND);
 
-        this.puck = new Puck(this, START_POINT.x, START_POINT.y);
-
-        // Goal
-        // this.goal = this.matter.add.image(1400, 200, "goal");
-        // this.goal.setCircle(28);
-        // this.goal.setStatic(true);
-        // this.goal.setSensor(true);
+        this.puck = new Puck(this, 400, 600);
+        this.goal = new Goal(this, 1000, 400);
 
         EventBus.emit("game-ready", this);
     }
