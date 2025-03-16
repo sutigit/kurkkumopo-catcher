@@ -72,7 +72,13 @@ Make sure you have the following software installed on your machine:
 
 ## Roadmap
 
--   Coming soon
+### Things waiting to get built
+
+-   The coolest kurkkumopo target
+-   Live Leaderboard
+-   computer-generated obstacle map
+-   AI-generated kurkkumopo emblem system
+-   Good ideas from you
 
 ## License
 
