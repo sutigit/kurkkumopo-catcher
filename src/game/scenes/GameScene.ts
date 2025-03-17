@@ -5,32 +5,77 @@ import Puck from "../objects/Puck";
 import { themes, type Theme } from "../../lib/theme";
 
 export class GameScene extends Scene {
-    camera: Phaser.Cameras.Scene2D.Camera;
     theme: Theme;
+
+    // Cameras
+    maincam: Phaser.Cameras.Scene2D.Camera;
+    minimap: Phaser.Cameras.Scene2D.Camera;
+
+    // World
+    worldSize: { width: number; height: number };
+
     // Game objects
     puck: Puck;
+    puckPosition: Phaser.Math.Vector2;
+
     goal: Goal;
+    goalPosition: Phaser.Math.Vector2;
 
     constructor() {
         super("GameScene");
-        let randomTheme = Math.floor(Math.random() * themes.length);
-        this.theme = themes[randomTheme];
+        // let randomTheme = Math.floor(Math.random() * themes.length);
+        this.theme = themes[0];
+
+        this.worldSize = { width: 3000, height: 3000 };
     }
 
     create() {
-        this.matter.world.setBounds();
+        // World physics
+        this.matter.world.setBounds(
+            0,
+            0,
+            this.worldSize.width,
+            this.worldSize.height
+        );
         this.matter.world.disableGravity();
-        this.camera = this.cameras.main;
-        this.camera.setBackgroundColor(this.theme.background);
 
-        this.puck = new Puck(this, 400, 600, this.theme);
-        this.goal = new Goal(this, 1000, 400, this.theme);
+        // Camera
+        this.cameras.main
+            .setBounds(0, 0, this.worldSize.width, this.worldSize.height)
+            .setName("Main Camera");
+        this.maincam = this.cameras.main;
+        this.maincam.setZoom(1);
+        this.maincam.setBackgroundColor(this.theme.background);
+
+        // Minimap
+        this.minimap = this.cameras
+            .add(window.innerWidth - 300, window.innerHeight - 300, 250, 250)
+            .setBounds(0, 0, this.worldSize.width, this.worldSize.height)
+            .setZoom(0.2)
+            .setScroll(1500, 1500)
+            .setBackgroundColor("#dddddd") // TODO: borders would be better
+            .setName("Minimap Camera");
+
+        this.puck = new Puck(
+            this,
+            this.worldSize.width / 2,
+            this.worldSize.height / 2,
+            this.theme
+        );
+        this.goal = new Goal(
+            this,
+            this.worldSize.width / 2 + 400,
+            this.worldSize.height / 2 - 200,
+            this.theme
+        );
+
+        this.maincam.startFollow(this.puck.gameObject(), true, 0.1, 0.1);
 
         EventBus.emit("game-ready", this);
     }
 
     update() {
-        this.puck.main();
+        this.puckPosition = this.puck.main();
     }
 }
 

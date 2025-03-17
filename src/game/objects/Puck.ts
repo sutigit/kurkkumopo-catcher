@@ -321,7 +321,11 @@ export default class Puck {
         this.arrowGraphics.fillPoints(this.arrowPolygon.points, true);
     }
 
-    public main() {
+    public gameObject(): Phaser.Physics.Matter.Image {
+        return this.puck;
+    }
+
+    public main(): Phaser.Math.Vector2 {
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
             this.center.setPosition(this.puck.x, this.puck.y);
@@ -383,6 +387,8 @@ export default class Puck {
                 this.handle.y
             );
         }
+
+        return this.puck.getCenter();
     }
 }
 
