@@ -4,7 +4,16 @@ Kurkkumopo Catcher is a game where the main objective is to shoot a puck and hit
 
 The project is built with React TS + [Phaser.js](https://docs.phaser.io/phaser/getting-started/what-is-phaser) library. If you are in Toska Slack feel free to ask me anything related to the project.
 
-![Game Screenshot](public/assets/kurkkumopo-catcher.png)
+<table>
+  <tr>
+    <td><img src="public/assets/kc0.png"/></td>
+    <td><img src="public/assets/kc1.png"/></td>
+  </tr>
+  <tr>
+    <td><img src="public/assets/kc2.png"/></td>
+    <td><img src="public/assets/kc3.png"/></td>
+  </tr>
+</table>
 
 ## Getting Started
 
