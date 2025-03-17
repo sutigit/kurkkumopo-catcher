@@ -342,13 +342,13 @@ export default class Puck {
     }
 
     public main(): Phaser.Math.Vector2 {
+        this.center.setPosition(this.puck.x, this.puck.y);
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
-            this.center.setPosition(this.puck.x, this.puck.y);
 
             // Check if the puck has stopped moving
             const { x, y } = this.puck.getVelocity();
-            const isStationary = Math.abs(x) < 0.05 && Math.abs(y) < 0.05;
+            const isStationary = Math.abs(x) < 0.5 && Math.abs(y) < 0.5;
 
             if (isStationary && !this.isJustShot) {
                 this.isPuckInMotion = false;

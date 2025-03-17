@@ -23,7 +23,7 @@ const config: Phaser.Types.Core.GameConfig = {
                 x: 0,
             },
             runner: {
-                isFixed: true,
+                isFixed: false,
             }
         },
     },
