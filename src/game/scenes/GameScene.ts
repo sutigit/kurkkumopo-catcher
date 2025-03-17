@@ -26,7 +26,7 @@ export class GameScene extends Scene {
         // let randomTheme = Math.floor(Math.random() * themes.length);
         this.theme = themes[0];
 
-        this.worldSize = { width: 3000, height: 3000 };
+        this.worldSize = { width: 4000, height: 4000 };
     }
 
     create() {
@@ -51,8 +51,9 @@ export class GameScene extends Scene {
         this.minimap = this.cameras
             .add(window.innerWidth - 300, window.innerHeight - 300, 250, 250)
             .setBounds(0, 0, this.worldSize.width, this.worldSize.height)
-            .setZoom(0.2)
-            .setScroll(1500, 1500)
+            .setZoom(0.1)
+            .setScroll(this.worldSize.width / 2, this.worldSize.height / 2)
+            .setRoundPixels(true)
             .setBackgroundColor("#dddddd") // TODO: borders would be better
             .setName("Minimap Camera");
 
