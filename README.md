@@ -79,11 +79,10 @@ Make sure you have the following software installed on your machine:
 -   Well first the game should actually have a start and ending
 -   **Ideas from you**
 -   Game joining system with a username (Maybe GitHub account linking)
--   Bigger map area and smooth camera following the puck
 -   Server Deployment
 -   The coolest kurkkumopo target
 -   Weekly changing theme system
--   Minimap
+-   Better Minimap
 -   Backend for score keeping
 -   Live Leaderboard
 -   Computer-generated obstacle map
