@@ -157,10 +157,15 @@ export default class Puck {
 
         const oldPos = this.puck.getCenter();
 
+        const pointerInWorld = this.scene.cameras.main.getWorldPoint(
+            this.pointerPos.x,
+            this.pointerPos.y
+        );
+
         // Interpolated position
         const newPos = Phaser.Math.LinearXY(
             this.handle.getCenter(),
-            this.pointerPos,
+            pointerInWorld,
             0.1
         );
 
@@ -215,7 +220,11 @@ export default class Puck {
 
     private isCenterContact(): boolean {
         const handleLocalPos = this.worldToLocalPos(this.handle.getCenter());
-        const pointerLocalPos = this.worldToLocalPos(this.pointerPos);
+        const pointerInWorld = this.scene.cameras.main.getWorldPoint(
+            this.pointerPos.x,
+            this.pointerPos.y
+        );
+        const pointerLocalPos = this.worldToLocalPos(pointerInWorld);
 
         const result =
             Math.sign(handleLocalPos.x) === -Math.sign(pointerLocalPos.x) &&
