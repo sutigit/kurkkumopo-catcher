@@ -115,7 +115,6 @@ export default class Puck {
         });
         scene.input.on("pointermove", (pointer: any) => {
             if (this.isHandlePulling) {
-                window.document.body.style.cursor = "grabbing";
                 this.pointerPos.set(pointer.x, pointer.y);
             }
         });
@@ -281,14 +280,14 @@ export default class Puck {
         handleX: number,
         handleY: number
     ) {
-        const scaler = Phaser.Math.Distance.BetweenPoints(
+        const distance = Phaser.Math.Distance.BetweenPoints(
             this.puck.getCenter(),
             this.handle.getCenter()
         );
 
         // Interpolate scaler between 0 and 1
         const normzscaler = Phaser.Math.Clamp(
-            scaler / this.maxPullDistance,
+            distance / this.maxPullDistance,
             0,
             1
         );
