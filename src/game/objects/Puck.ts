@@ -74,9 +74,7 @@ export default class Puck {
         this.puck.setDepth(1);
         this.puck.setCircle(25);
         this.puck.setBounce(this.bounce);
-        this.puck.setFriction(0.0);
-        // this.puck.setFrictionAir(0.01);
-        // this.puck.setFrictionStatic(0.0);
+        this.puck.setFrictionAir(0.01);
 
         const centerGraphics = scene.add.graphics();
         centerGraphics.fillStyle(theme.tertiary);
@@ -350,12 +348,15 @@ export default class Puck {
 
             // Check if the puck has stopped moving
             const { x, y } = this.puck.getVelocity();
-            if (x === 0 && y === 0 && !this.isJustShot) {
+            const isStationary = Math.abs(x) < 0.05 && Math.abs(y) < 0.05;
+
+            if (isStationary && !this.isJustShot) {
                 this.isPuckInMotion = false;
                 console.log("Puck has stopped moving!");
+            } else if (!isStationary) {
+                this.isJustShot = false;
             }
-
-            this.isJustShot = false;
+            
         } else {
             switch (this.getState()) {
                 case Handle.CENTER:
