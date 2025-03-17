@@ -1,0 +1,81 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kurkkumopo-catcher
+  namespace: toska
+  labels:
+    app: kurkkumopo-catcher
+spec:
+  selector:
+    matchLabels:
+      app: kurkkumopo-catcher
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container:  kurkkumopo-catcher
+      labels:
+        app: kurkkumopo-catcher
+    spec:
+      containers:
+      - name: kurkkumopo-catcher
+        image: tfhuhtal/kurkku:0.07
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kurkkumopo-catcher-svc
+  namespace: toska
+spec:
+  clusterIP: None
+  selector:
+    app: kurkkumopo-catcher
+  ports:
+  - name: 8080-tcp
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: kurkkumopo-catcher-route
+  namespace: toska
+  labels:
+    app: kurkkumopo-catcher
+    type: external
+  annotations:
+    haproxy.router.openshift.io/timeout: 900s
+spec:
+  host: kurkkumopo-catcher.ext.ocp-prod-0.k8s.it.helsinki.fi
+  to:
+    kind: Service
+    name: kurkkumopo-catcher-svc
+  port:
+    targetPort: 8080-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
