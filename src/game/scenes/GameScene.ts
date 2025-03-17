@@ -26,7 +26,7 @@ export class GameScene extends Scene {
         // let randomTheme = Math.floor(Math.random() * themes.length);
         this.theme = themes[0];
 
-        this.worldSize = { width: 4000, height: 4000 };
+        this.worldSize = { width: 1000, height: 1000 };
     }
 
     create() {
