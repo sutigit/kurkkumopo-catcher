@@ -8,6 +8,8 @@ export class Preload extends Scene {
     preload() {
         this.load.setPath("assets");
         // this.load.image("example", "example.svg");
+
+        this.load.image("toskaMopo", "toskaMopo.png");
     }
 
     create() {

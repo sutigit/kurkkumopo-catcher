@@ -76,6 +76,7 @@ export class GameScene extends Scene {
 
     update() {
         this.puckPosition = this.puck.main();
+        this.goalPosition = this.goal.main();
     }
 }
 
