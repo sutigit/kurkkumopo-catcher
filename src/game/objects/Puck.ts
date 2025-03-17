@@ -138,6 +138,10 @@ export default class Puck {
         return this.puck.getWorldTransformMatrix().applyInverse(pos.x, pos.y);
     }
 
+    private localToWorldPos(pos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+        return this.puck.getWorldTransformMatrix().applyInverse(pos.x, pos.y);
+    }
+
     private resetHandle() {
         this.handle.setVelocity(0, 0);
         this.handle.setPosition(this.puck.x, this.puck.y);
