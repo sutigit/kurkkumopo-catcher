@@ -77,6 +77,7 @@ Make sure you have the following software installed on your machine:
 ### Things waiting to get built
 
 -   Well first the game should actually have a start and ending
+-   **Ideas from you**
 -   Game joining system with a username (Maybe GitHub account linking)
 -   Server Deployment
 -   The coolest kurkkumopo target
@@ -89,7 +90,6 @@ Make sure you have the following software installed on your machine:
 -   AI-generated kurkkumopo emblem system
 -   Slack leaderboard notification integration
 -   Replay-video capture system for weakly best play
--   Good ideas from you
 
 ## License
 
