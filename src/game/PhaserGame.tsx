@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
+import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { EventBus } from "./EventBus";
 import { AUTO, Game } from "phaser";
 import { GameScene } from "./scenes/GameScene";
@@ -33,6 +33,7 @@ const config: Phaser.Types.Core.GameConfig = {
 const StartGame = (parent: string) => {
     return new Game({ ...config, parent });
 };
+
 export interface IRefPhaserGame {
     game: Phaser.Game | null;
     scene: Phaser.Scene | null;

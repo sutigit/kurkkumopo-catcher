@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 
 function App() {

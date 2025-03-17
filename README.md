@@ -1,6 +1,6 @@
 # Kurkkumopo Catcher 🎮 🥒🛵
 
-Kurkkumopo Catcher is a game where the main objective is to shoot a puck and hit the target (kurkkumopo) with the least travelled distance possible, in a computer-generated map full of obstacles made by contributors! Dominate the leaderboard as each weak the game resets and the best player wins glory and a unique kurkkumopo emblem! The game is in pre-pre-pre-pre-pre-pre-alpha stage. Check out the rough sketch of the roadmap to find things to contribute. This project is built with the great _Toska community_ 🚀 in mind. Game is **not yet Live**.
+Kurkkumopo Catcher is a game where the main objective is to shoot a puck and hit the target (kurkkumopo) with the least travelled distance possible, in a computer-generated map full of obstacles made by contributors! Dominate the leaderboard as each weak the game resets and the best player wins glory and a unique kurkkumopo emblem! The game is in pre-pre-pre-pre-pre-pre-alpha stage. Check out the rough sketch of the roadmap to find things to contribute. This project is built with the great _Toska community_ 🚀 in mind. Game is live [here.](https://kurkkumopo-catcher.ext.ocp-prod-0.k8s.it.helsinki.fi/)
 
 The project is built with React TS + [Phaser.js](https://docs.phaser.io/phaser/getting-started/what-is-phaser) library. If you are in Toska Slack feel free to ask me anything related to the project.
 
@@ -83,12 +83,11 @@ Make sure you have the following software installed on your machine:
 
 ## Roadmap
 
-### Things waiting to get built
+### Things waiting to get built 🏗️
 
 -   Well first the game should actually have a start and ending
 -   **Ideas from you**
 -   Game joining system with a username (Maybe GitHub account linking)
--   Server Deployment
 -   The coolest kurkkumopo target
 -   Weekly changing theme system
 -   Better Minimap
@@ -99,6 +98,8 @@ Make sure you have the following software installed on your machine:
 -   AI-generated kurkkumopo emblem system
 -   Slack leaderboard notification integration
 -   Replay-video capture system for weakly best play
+
+#### More detailed overview of things to build coming soon in Project tab
 
 ## License
 
