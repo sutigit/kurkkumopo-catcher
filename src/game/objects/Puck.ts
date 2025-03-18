@@ -27,6 +27,7 @@ export default class Puck {
     isHandleReset: boolean;
     isHandlePulling: boolean;
     isHandleInMotion: boolean;
+    isJustShot: boolean;
     canHandleShoot: boolean;
 
     isPuckInMotion: boolean;
@@ -56,10 +57,11 @@ export default class Puck {
         this.isHandleReset = true;
         this.isHandlePulling = false;
         this.isHandleInMotion = false;
+        this.isJustShot = false;
         this.canHandleShoot = false;
 
         // Physics properties --------------------------------
-        this.bounce = 0.9;
+        this.bounce = 1.0;
         this.maxPullDistance = 160;
 
         // Main objects ------------------------------------------------
@@ -72,6 +74,7 @@ export default class Puck {
         this.puck.setDepth(1);
         this.puck.setCircle(25);
         this.puck.setBounce(this.bounce);
+        this.puck.setFrictionAir(0.01);
 
         const centerGraphics = scene.add.graphics();
         centerGraphics.fillStyle(theme.tertiary);
@@ -339,15 +342,21 @@ export default class Puck {
     }
 
     public main(): Phaser.Math.Vector2 {
+        this.center.setPosition(this.puck.x, this.puck.y);
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
-            this.center.setPosition(this.puck.x, this.puck.y);
 
             // Check if the puck has stopped moving
             const { x, y } = this.puck.getVelocity();
-            if (Math.abs(x) < 0.01 && Math.abs(y) < 0.01) {
+            const isStationary = Math.abs(x) < 0.5 && Math.abs(y) < 0.5;
+
+            if (isStationary && !this.isJustShot) {
                 this.isPuckInMotion = false;
+                console.log("Puck has stopped moving!");
+            } else if (!isStationary) {
+                this.isJustShot = false;
             }
+            
         } else {
             switch (this.getState()) {
                 case Handle.CENTER:
@@ -378,7 +387,9 @@ export default class Puck {
                                 magicConstant * y
                             )
                         );
-
+                        
+                        // Need this flag since on first frame after applying force, velocity is still 0
+                        this.isJustShot = true;
                         this.isPuckInMotion = true;
                     }
                     break;
