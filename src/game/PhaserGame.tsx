@@ -26,7 +26,7 @@ const config: Phaser.Types.Core.GameConfig = {
             velocityIterations: 4,
             runner: {
                 isFixed: false,
-            }
+            },
         },
     },
     scene: [Preload, GameScene],

@@ -319,9 +319,9 @@ export default class Puck {
             1
         );
 
-        const k = this.puckRadius + 10 * normzscaler;
-        const l = 32 * normzscaler;
-        const m = 20 * normzscaler;
+        const k = this.puckRadius + 8; // length from center of puck to base of arrow
+        const l = 32 * normzscaler; // length of arrow
+        const m = 20 * normzscaler; // 1/2 width of arrow
 
         const angle =
             -1 *
@@ -353,7 +353,9 @@ export default class Puck {
     }
 
     public main(): Phaser.Math.Vector2 {
+        // Center disc. If anybody finds a way to draw center disc directly on puck, that would be better
         this.center.setPosition(this.puck.x, this.puck.y);
+
         if (this.isPuckInMotion) {
             this.handle.setPosition(this.puck.x, this.puck.y);
 
@@ -367,7 +369,6 @@ export default class Puck {
             } else if (!isStationary) {
                 this.isJustShot = false;
             }
-            
         } else {
             switch (this.getState()) {
                 case Handle.CENTER:
@@ -389,7 +390,7 @@ export default class Puck {
                     if (this.isCenterContact()) {
                         const { x, y } = this.handle.getVelocity();
                         this.resetHandle();
-                        const magicConstant = 0.006;
+                        const magicConstant = 0.006; // This constant is arbitrary, but it adjusts the force correctly
 
                         // Shoot the puck!
                         this.puck.applyForce(
@@ -398,7 +399,7 @@ export default class Puck {
                                 magicConstant * y
                             )
                         );
-                        
+
                         // Need this flag since on first frame after applying force, velocity is still 0
                         this.isJustShot = true;
                         this.isPuckInMotion = true;
