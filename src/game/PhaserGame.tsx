@@ -3,7 +3,6 @@ import { EventBus } from "./EventBus";
 import { AUTO, Game } from "phaser";
 import { GameScene } from "./scenes/GameScene";
 import { Preload } from "./Preload";
-import React from "react";
 
 const WINDOW_WIDTH = window.innerWidth;
 const WINDOW_HEIGHT = window.innerHeight;
@@ -22,6 +21,9 @@ const config: Phaser.Types.Core.GameConfig = {
                 y: 0,
                 x: 0,
             },
+            constraintIterations: 10,
+            positionIterations: 6,
+            velocityIterations: 4,
             runner: {
                 isFixed: false,
             }

@@ -26,7 +26,7 @@ export class GameScene extends Scene {
         // let randomTheme = Math.floor(Math.random() * themes.length);
         this.theme = themes[0];
 
-        this.worldSize = { width: 4000, height: 4000 };
+        this.worldSize = { width: 200, height: 200 };
     }
 
     create() {
@@ -71,6 +71,8 @@ export class GameScene extends Scene {
         );
 
         this.maincam.startFollow(this.puck.gameObject(), true, 0.1, 0.1);
+
+        this.sound.play("music", { loop: true, volume: 0.3 });
 
         EventBus.emit("game-ready", this);
     }
