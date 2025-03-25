@@ -21,6 +21,9 @@ const config: Phaser.Types.Core.GameConfig = {
                 y: 0,
                 x: 0,
             },
+            constraintIterations: 10,
+            positionIterations: 6,
+            velocityIterations: 4,
             runner: {
                 isFixed: false,
             },

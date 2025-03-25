@@ -74,7 +74,18 @@ export default class Puck {
         this.puck.setDepth(1);
         this.puck.setCircle(25);
         this.puck.setBounce(this.bounce);
+        this.puck.setFriction(0.0);
         this.puck.setFrictionAir(0.01);
+
+        this.scene.matter.world.on("collisionstart", (_ev, b1, b2) => {
+            // By luck, when b2 is puck then it is colliding with the wall (fix later)
+            if (b2 === this.puck.body) {
+                this.scene.sound.play("bong", {
+                    volume: Math.min(0.1, Math.abs(b2.velocity.x) + Math.abs(b2.velocity.y) / 100),
+                    detune: Math.random() * 300,
+                });
+            }
+        })
 
         const centerGraphics = scene.add.graphics();
         centerGraphics.fillStyle(theme.tertiary);

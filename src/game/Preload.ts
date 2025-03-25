@@ -10,6 +10,8 @@ export class Preload extends Scene {
         // this.load.image("example", "example.svg");
 
         this.load.image("toskaMopo", "toskaMopo.png");
+        this.load.audio("bong", "sounds/bong.wav");
+        this.load.audio("music", "sounds/733382__clacksberg__cosmic-ambient-music.mp3");
     }
 
     create() {
